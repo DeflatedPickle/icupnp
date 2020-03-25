@@ -1,6 +1,8 @@
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import com.dosse.upnp.UPnP;
+
 /**
  *
  * @author Federico
