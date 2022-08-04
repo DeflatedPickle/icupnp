@@ -25,9 +25,10 @@ package com.dosse.upnp;
  * @author Federico
  */
 public class UPnP {
+    public static final String displayBox = "LibWaifUPnP";
 
     private static Gateway defaultGW = null;
-    private static final GatewayFinder finder = new GatewayFinder() {
+    private static GatewayFinder finder = new GatewayFinder() {
         @Override
         public void gatewayFound(Gateway g) {
             synchronized (finder) {
@@ -37,6 +38,29 @@ public class UPnP {
             }
         }
     };
+    /**
+     * a dangerous check for is it open now at the current millisecond
+     */
+    public static boolean isUPnPUpNow(){
+    	return defaultGW != null;
+    }
+    /**
+     * this method will take a while to instantiate do not call unless necessary 
+     */
+    public static void refreshProgram()
+    {
+    	defaultGW = null;
+    	finder = new GatewayFinder() {
+    	    @Override
+    	    public void gatewayFound(Gateway g) {
+    	        synchronized (finder) {
+    	            if (defaultGW == null) {
+    	                defaultGW = g;
+    	            }
+    	        }
+    	    }
+    	};
+    }
 
     /**
      * Waits for UPnP to be initialized (takes ~3 seconds).<br>
@@ -58,9 +82,24 @@ public class UPnP {
      * 
      * @return true if available, false if not
      */
+    public static boolean hasPorted;
     public static boolean isUPnPAvailable(){
+		if(!UPnP.isUPnPUpNow() && hasPorted)
+		{
+		   UPnP.refreshProgram();
+		}
         waitInit();
-        return defaultGW!=null;
+        hasPorted = true;
+        return UPnP.isUPnPUpNow();
+    }
+    
+    /**
+     * used the display string to show up on router box yourself
+     */
+    @Deprecated
+    public static boolean openPortTCP(int port)
+    {
+    	return openPortTCP(port, displayBox);
     }
 
     /**
@@ -69,9 +108,21 @@ public class UPnP {
      * @param port TCP port (0-65535)
      * @return true if the operation was successful, false otherwise
      */
-    public static boolean openPortTCP(int port) {
-        if(!isUPnPAvailable()) return false;
-        return defaultGW.openPort(port, false);
+    public static boolean openPortTCP(int port, String display) 
+    {
+        if(!isUPnPAvailable()){
+        	return false;
+        }
+        return defaultGW.openPort(port, false, display);
+    }
+    
+    /**
+     * used the display string to show up on router box yourself
+     */
+    @Deprecated
+    public static boolean openPortUDP(int port)
+    {
+    	return openPortUDP(port, displayBox);
     }
     
     /**
@@ -80,9 +131,9 @@ public class UPnP {
      * @param port UDP port (0-65535)
      * @return true if the operation was successful, false otherwise
      */
-    public static boolean openPortUDP(int port) {
+    public static boolean openPortUDP(int port, String display) {
         if(!isUPnPAvailable()) return false;
-        return defaultGW.openPort(port, true);
+        return defaultGW.openPort(port, true, display);
     }
     
     /**
