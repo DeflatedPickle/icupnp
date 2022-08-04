@@ -1,8 +1,11 @@
 # WaifUPnP 
+Simply Call UPnP.openPort/closePort(port);
 
-UPnP Port Forwarding for Java couldn't be any easier!
+Liscense 
+https://www.gnu.org/licenses/lgpl
 
-WaifUPnP is an _extermely_ lightweight Java library that allows you to:
+Example Ussage for program
+https://minecraft.curseforge.com/projects/lan-essentials
 
 - open/close TCP/UDP ports
 - check if there's an UPnP router available
