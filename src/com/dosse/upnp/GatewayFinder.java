@@ -69,7 +69,7 @@ abstract class GatewayFinder {
                         DatagramPacket recv = new DatagramPacket(new byte[1536], 1536);
                         s.receive(recv);
                         gw = new Gateway(recv.getData(), ip, recv.getAddress());
-                        String extIp= gw.getExternalIP();
+                        String extIp= gw.getExternalIPv4();
                         if( (extIp!=null) && (!extIp.equalsIgnoreCase("0.0.0.0")) ){ //Exclude gateways without an external IP
                             gatewayFound(gw);
                             foundgw=true;

@@ -188,8 +188,16 @@ public class UPnP {
      * @return external IP address as string, or null if not available
      */
     public static String getExternalIP(){
-        if(!isUPnPAvailable()) return null;
-        return defaultGW.getExternalIP();
+        if(!isUPnPAvailable()) {
+            if (defaultGW.getExternalIPv6() != null) {
+                return "[" + defaultGW.getExternalIPv6() + "]";
+            }
+            return null;
+        }
+        if (defaultGW.getExternalIPv6() != null) {
+            return "[" + defaultGW.getExternalIPv6() + "]";
+        }
+        return defaultGW.getExternalIPv4();
     }
     
     /**

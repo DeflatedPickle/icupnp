@@ -18,14 +18,20 @@
  */
 package com.dosse.upnp;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -134,14 +140,16 @@ class Gateway {
         return ret;
     }
 
-    public String getGatewayIP(){ return routerip.getHostAddress(); }
+    public String getGatewayIP(){
+        return routerip.getHostAddress(); 
+    }
 
     public String getLocalIP() {
         return iface.getHostAddress();
     }
 
 
-    public String getExternalIP() {
+    public String getExternalIPv4() {
         try {
             Map<String, String> r = command("GetExternalIPAddress", null);
             return r.get("NewExternalIPAddress");
@@ -149,6 +157,49 @@ class Gateway {
             return null;
         }
     }
+
+    public String getExternalIPv6() {
+        try {
+            return getLocalIPv6Address();
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    public static String getLocalIPv6Address() throws IOException {
+        InetAddress inetAddress = null;
+        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+        outer:
+        while (networkInterfaces.hasMoreElements()) {
+            Enumeration<InetAddress> inetAds = networkInterfaces.nextElement().getInetAddresses();
+            while (inetAds.hasMoreElements()) {
+                inetAddress = inetAds.nextElement();
+                if (inetAddress instanceof Inet6Address
+                    && !isReservedAddr(inetAddress)) {
+                    break outer;
+            }
+        }
+    }
+
+    String ipAddr = inetAddress.getHostAddress();
+    int index1 = ipAddr.indexOf('%');
+    if (index1 > 0) {
+        ipAddr = ipAddr.substring(0, index1);
+    }
+    int index2 = ipAddr.indexOf("fe80");
+    if (index2 != -1) {
+        return null;
+    }
+    return ipAddr;
+    }
+
+    private static boolean isReservedAddr(InetAddress inetAddr) {
+        if (inetAddr.isAnyLocalAddress() || inetAddr.isLinkLocalAddress() || inetAddr.isLoopbackAddress()) {
+            return true;
+        }
+    return false;
+    }
+
 
     public boolean openPort(int port, boolean udp, String display) {
         if (port < 0 || port > 65535) {
