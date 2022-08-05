@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+
+    id 'com.diffplug.gradle.spotless' version '3.27.0'
+}
+
+group 'com.deflatedpickle'
+archivesBaseName = 'icupnp'
+version '1.2.0'
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    jcenter()
+    mavenCentral()
+
+    maven { url 'https://jitpack.io' }
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+    }
+}

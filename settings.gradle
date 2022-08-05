@@ -1,0 +1,4 @@
+rootProject.name = 'icupnp'
+
+include 'master'
+include 'test'
